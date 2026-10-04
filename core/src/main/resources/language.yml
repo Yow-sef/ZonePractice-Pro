@@ -438,9 +438,6 @@ COMMAND:
           - "<red><st>---------------------------------------"
       SPAWN-POSITION:
         NO-REGION: "<red>You must set the two corners of the arena first."
-        SPAWN-ADDED: "<green>You added the spawn position for the %event% event. It has now %posCount% positions."
-        SPAWN-REMOVED: "<green>You removed the spawn position for the %event% event. It has now %posCount% positions."
-        SPAWN-CLEARED: "<green>You cleared all the spawn positions for the %event% event."
       BRACKETS:
         COMMAND-HELP:
           - "<red><st>---------------------------------------"

@@ -31,11 +31,9 @@ tasks.named('shadowJar', com.github.jengelman.gradle.plugins.shadow.tasks.Shadow
     relocate 'net.megavex.scoreboardlibrary', 'dev.nandi0813.practice.dependencies.sidebar'
     relocate 'dev.dejvokep.boostedyaml', 'dev.nandi0813.practice.dependencies.boostedyaml'
     relocate 'net.wesjd.anvilgui', 'dev.nandi0813.practice.dependencies.anvilgui'
-    relocate 'dev.nandi0813.license', 'dev.nandi0813.practice.dependencies.license'
     relocate 'org.bstats', 'dev.nandi0813.practice.dependencies.bstats'
     relocate 'dev.faststats', 'dev.nandi0813.practice.dependencies.faststats'
     relocate 'com.google.gson', 'dev.nandi0813.practice.dependencies.gson'
-    relocate 'org.objectweb.asm', 'dev.nandi0813.practice.dependencies.asm'
     relocate 'com.zaxxer.hikari', 'dev.nandi0813.practice.dependencies.hikari'
     relocate 'org.mariadb.jdbc', 'dev.nandi0813.practice.dependencies.mariadb'
 }

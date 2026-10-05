@@ -18,6 +18,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
@@ -172,10 +173,10 @@ public class GoldenHead implements Listener {
             Player onlinePlayer = profile.getPlayer().getPlayer();
 
             if (onlinePlayer == null ||
-                !onlinePlayer.isOnline() ||
-                (!profile.getStatus().equals(ProfileStatus.MATCH) &&
-                 !profile.getStatus().equals(ProfileStatus.EVENT) &&
-                 !profile.getStatus().equals(ProfileStatus.FFA))
+                    !onlinePlayer.isOnline() ||
+                    (!profile.getStatus().equals(ProfileStatus.MATCH) &&
+                            !profile.getStatus().equals(ProfileStatus.EVENT) &&
+                            !profile.getStatus().equals(ProfileStatus.FFA))
             ) {
                 profile.getActionBar().removeMessage("golden_head");
                 BukkitTask removed = this.cooldownActionBarTasks.remove(playerId);
@@ -233,15 +234,23 @@ public class GoldenHead implements Listener {
         this.lastConsumeAt.put(player.getUniqueId(), System.currentTimeMillis());
         startCooldownActionBar(profile);
 
+        EquipmentSlot hand = e.getHand();
+
+        if (hand == null) {
+            return;
+        }
+
         int amount = item.getAmount();
-        if (amount == 1) {
-            player.getInventory().setItemInMainHand(null);
+
+        if (amount <= 1) {
+            player.getInventory().setItem(hand, null);
         } else {
             item.setAmount(amount - 1);
         }
 
         for (PotionEffect effect : effects) {
             boolean activate = true;
+
             for (PotionEffect active : player.getActivePotionEffects()) {
                 if (!effect.getType().equals(active.getType()))
                     continue;
@@ -250,16 +259,16 @@ public class GoldenHead implements Listener {
                     activate = false;
                     break;
                 }
+
                 if (effect.getDuration() < active.getDuration()) {
                     activate = false;
                     break;
                 }
             }
 
-            if (activate)
+            if (activate) {
                 player.addPotionEffect(effect);
+            }
         }
-
-        player.updateInventory();
     }
 }

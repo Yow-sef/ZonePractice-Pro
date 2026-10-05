@@ -26,8 +26,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class PartySplitGui extends GUI {
 
@@ -43,6 +45,7 @@ public class PartySplitGui extends GUI {
     private final int rounds;
     private final GUI backTo;
     private final Map<Player, TeamEnum> assignments = new LinkedHashMap<>();
+    private final Set<Player> spectators = new LinkedHashSet<>();
     private final Map<Integer, Player> headSlots = new LinkedHashMap<>();
 
     public PartySplitGui(Party party, Ladder ladder, Arena arena, int rounds, GUI backTo) {
@@ -93,20 +96,21 @@ public class PartySplitGui extends GUI {
     }
 
     private ItemStack getPlayerItem(Player member) {
-        TeamEnum team = assignments.get(member);
-        GUIItem configItem;
-        if (team == null) {
-            configItem = GUIFile.getGuiItem("GUIS.PARTY.PARTY-SPLIT.ICONS.PLAYER-ITEM.UNASSIGNED");
-        } else if (team == TeamEnum.TEAM1) {
-            configItem = GUIFile.getGuiItem("GUIS.PARTY.PARTY-SPLIT.ICONS.PLAYER-ITEM.BLUE");
-        } else {
-            configItem = GUIFile.getGuiItem("GUIS.PARTY.PARTY-SPLIT.ICONS.PLAYER-ITEM.RED");
-        }
+        GUIItem configItem = GUIFile.getGuiItem("GUIS.PARTY.PARTY-SPLIT.ICONS.PLAYER-ITEM." + getPlayerItemIcon(member));
 
         GUIItem headItem = new GUIItem(ItemCreateUtil.getPlayerHead(member));
         headItem.setName(configItem.getName());
         headItem.setLore(configItem.getLore());
         return headItem.replace("%player%", member.getName()).get();
+    }
+
+    private String getPlayerItemIcon(Player member) {
+        if (spectators.contains(member)) return "SPECTATOR";
+
+        TeamEnum team = assignments.get(member);
+        if (team == null) return "UNASSIGNED";
+
+        return team == TeamEnum.TEAM1 ? "BLUE" : "RED";
     }
 
     @Override
@@ -128,22 +132,44 @@ public class PartySplitGui extends GUI {
             startMatch(player);
         } else if (headSlots.containsKey(slot)) {
             Player member = headSlots.get(slot);
-            if (e.isLeftClick())
-                assignments.put(member, TeamEnum.TEAM1);
-            else if (e.isRightClick())
-                assignments.put(member, TeamEnum.TEAM2);
+            if (e.isShiftClick() && e.isLeftClick()) {
+                setSpectator(member);
+            } else if (e.isShiftClick() && e.isRightClick()) {
+                unassign(member);
+            } else if (e.isLeftClick()) {
+                setTeam(member, TeamEnum.TEAM1);
+            } else if (e.isRightClick()) {
+                setTeam(member, TeamEnum.TEAM2);
+            }
             update();
         }
+    }
+
+    private void setTeam(Player member, TeamEnum team) {
+        spectators.remove(member);
+        assignments.put(member, team);
+    }
+
+    private void setSpectator(Player member) {
+        assignments.remove(member);
+        spectators.add(member);
+    }
+
+    private void unassign(Player member) {
+        assignments.remove(member);
+        spectators.remove(member);
     }
 
     private void randomSplit() {
         assignments.clear();
 
-        List<Player> members = new ArrayList<>(party.getMembers());
-        Collections.shuffle(members);
+        List<Player> fighters = new ArrayList<>(party.getMembers());
+        fighters.removeIf(spectators::contains);
 
-        List<Player> team1 = members.subList(0, members.size() / 2);
-        List<Player> team2 = members.subList(members.size() / 2, members.size());
+        Collections.shuffle(fighters);
+
+        List<Player> team1 = fighters.subList(0, fighters.size() / 2);
+        List<Player> team2 = fighters.subList(fighters.size() / 2, fighters.size());
         for (Player member : team1)
             assignments.put(member, TeamEnum.TEAM1);
         for (Player member : team2)
@@ -177,7 +203,7 @@ public class PartySplitGui extends GUI {
         if (party.getMembers().size() == 2) {
             match = new Duel(ladder, selectedArena, new ArrayList<>(party.getMembers()), false, rounds);
         } else {
-            match = new PartySplit(ladder, selectedArena, party, rounds, teamAssignments);
+            match = new PartySplit(ladder, selectedArena, party, rounds, teamAssignments, new ArrayList<>(spectators));
         }
 
         party.setMatch(match);
@@ -186,7 +212,7 @@ public class PartySplitGui extends GUI {
 
     private void assignUnassignedMembers() {
         for (Player member : party.getMembers()) {
-            if (assignments.containsKey(member)) continue;
+            if (spectators.contains(member) || assignments.containsKey(member)) continue;
 
             int team1Count = Collections.frequency(assignments.values(), TeamEnum.TEAM1);
             int team2Count = Collections.frequency(assignments.values(), TeamEnum.TEAM2);

@@ -602,25 +602,32 @@ GUIS:
             LORE:
               - "<dark_gray><st>------------------------"
               - "<gray>Team: <white>Not selected"
-              - ""
-              - "<blue><bold>LEFT-CLICK <blue>to assign to the Blue team."
-              - "<red><bold>RIGHT-CLICK <red>to assign to the Red team."
+              - "<blue>L <gray>Blue     <red>R <gray>Red"
+              - "<dark_gray>Shift+L <gray>Spec     Shift+R <gray>None"
               - "<dark_gray><st>------------------------"
           BLUE:
             NAME: "<aqua>%player%"
             LORE:
               - "<dark_gray><st>------------------------"
               - "<gray>Team: <blue>Blue"
-              - ""
-              - "<red><bold>RIGHT-CLICK <red>to move to the Red team."
+              - "<blue>L <gray>Blue     <red>R <gray>Red"
+              - "<dark_gray>Shift+L <gray>Spec     Shift+R <gray>None"
               - "<dark_gray><st>------------------------"
           RED:
             NAME: "<red>%player%"
             LORE:
               - "<dark_gray><st>------------------------"
               - "<gray>Team: <red>Red"
-              - ""
-              - "<blue><bold>LEFT-CLICK <blue>to move to the Blue team."
+              - "<blue>L <gray>Blue     <red>R <gray>Red"
+              - "<dark_gray>Shift+L <gray>Spec     Shift+R <gray>None"
+              - "<dark_gray><st>------------------------"
+          SPECTATOR:
+            NAME: "<gray>%player%"
+            LORE:
+              - "<dark_gray><st>------------------------"
+              - "<gray>Team: <dark_gray>Spectator"
+              - "<blue>L <gray>Blue     <red>R <gray>Red"
+              - "<dark_gray>Shift+L <gray>Spec     Shift+R <gray>None"
               - "<dark_gray><st>------------------------"
         RANDOM-SPLIT:
           NAME: "<yellow>Random Split"

@@ -413,11 +413,6 @@ MATCH-SETTINGS:
         ENABLED: true
         EXP-BAR: true
         TIME: 5 # In sec.
-    AXE:
-      SHIELD-STUN:
-        ENABLED: true
-        DURATION-TICKS: 100
-        REQUIRE-AXE: true
   DISPLAY-ARROW-HIT-HEALTH: true # If true, the player will see the health of the player they hit.
 #
 # FFA settings

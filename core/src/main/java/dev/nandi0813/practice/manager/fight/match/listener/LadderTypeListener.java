@@ -51,14 +51,9 @@ import org.bukkit.inventory.ItemStack;
 
 import static dev.nandi0813.practice.manager.arena.util.ArenaUtil.containsDestroyableBlock;
 import static dev.nandi0813.practice.util.PermanentConfig.FIGHT_ENTITY;
-import static dev.nandi0813.practice.util.PermanentConfig.PLACED_IN_FIGHT;
 
 public class LadderTypeListener implements Listener {
 
-    private static final String AXE_LADDER_SETTINGS_PATH = "MATCH-SETTINGS.LADDER-SETTINGS.AXE";
-    private static final String SHIELD_STUN_ENABLED_PATH = AXE_LADDER_SETTINGS_PATH + ".SHIELD-STUN.ENABLED";
-    private static final String SHIELD_STUN_DURATION_PATH = AXE_LADDER_SETTINGS_PATH + ".SHIELD-STUN.DURATION-TICKS";
-    private static final String SHIELD_STUN_REQUIRE_AXE_PATH = AXE_LADDER_SETTINGS_PATH + ".SHIELD-STUN.REQUIRE-AXE";
     private static final int SKYWARS_KILLER_EXP_LEVEL_REWARD = 5;
     private static final int SKYWARS_ENCHANT_LAPIS_AMOUNT = 3;
 
@@ -170,13 +165,6 @@ public class LadderTypeListener implements Listener {
                 .replace("%health%", String.valueOf(health)));
     }
 
-    private static boolean isAxe(Material material) {
-        return switch (material) {
-            case WOODEN_AXE, STONE_AXE, GOLDEN_AXE, IRON_AXE, DIAMOND_AXE, NETHERITE_AXE -> true;
-            default -> false;
-        };
-    }
-
     private static boolean isShieldBlockedHit(EntityDamageByEntityEvent e, Player target) {
         ItemStack activeItem = target.getActiveItem();
         if (!target.isBlocking() || activeItem.getType() != Material.SHIELD) {
@@ -185,28 +173,6 @@ public class LadderTypeListener implements Listener {
 
         // A blocked shield hit should not deal HP damage.
         return e.getFinalDamage() <= 0.0D;
-    }
-
-    private static void applyCustomShieldStunIfNeeded(EntityDamageByEntityEvent e, Player attacker, Player target) {
-        if (!(e.getDamager() instanceof Player)) {
-            return;
-        }
-
-        if (!ConfigManager.getConfig().getBoolean(SHIELD_STUN_ENABLED_PATH, true)) {
-            return;
-        }
-
-        boolean requireAxe = ConfigManager.getConfig().getBoolean(SHIELD_STUN_REQUIRE_AXE_PATH, true);
-        if (requireAxe && !isAxe(attacker.getInventory().getItemInMainHand().getType())) {
-            return;
-        }
-
-        int durationTicks = Math.max(0, ConfigManager.getConfig().getInt(SHIELD_STUN_DURATION_PATH));
-        if (durationTicks == 0) {
-            return;
-        }
-
-        target.setCooldown(Material.SHIELD, durationTicks);
     }
 
     private static boolean isSkyWarsLiveMatch(Match match) {
@@ -792,9 +758,6 @@ public class LadderTypeListener implements Listener {
         match.recordAttack(target, attacker);
 
         boolean shieldBlocked = isShieldBlockedHit(e, target);
-        if (shieldBlocked) {
-            applyCustomShieldStunIfNeeded(e, attacker, target);
-        }
 
         if (!e.isCancelled() && !match.getLadder().getLadderKnockback().getKnockbackType().equals(KnockbackType.DEFAULT)) {
             if (shieldBlocked) {

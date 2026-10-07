@@ -1,4 +1,4 @@
-VERSION: 49
+VERSION: 50
 
 GENERAL-FILLER-ITEM:
   NAME: " "
@@ -1308,6 +1308,8 @@ GUIS:
     ICONS:
       FILLER-ITEM:
         MATERIAL: BLACK_STAINED_GLASS_PANE
+      EMPTY-SLOT: # Fills ladder/category/quick-match slots that ended up empty (e.g. deleted ladder). Falls back to FILLER-ITEM if not set; set MATERIAL: AIR to disable.
+        MATERIAL: GRAY_STAINED_GLASS_PANE
       CATEGORY-SELECTOR:
         NAME: "<gray>%category%"
         MATERIAL: BOOK
@@ -1393,6 +1395,8 @@ GUIS:
     ICONS:
       FILLER-ITEM:
         MATERIAL: BLACK_STAINED_GLASS_PANE
+      EMPTY-SLOT: # Fills ladder/category/quick-match slots that ended up empty (e.g. deleted ladder). Set MATERIAL: "" to disable.
+        MATERIAL: GRAY_STAINED_GLASS_PANE
       CATEGORY-SELECTOR:
         NAME: "<gray>%category%"
         MATERIAL: BOOK

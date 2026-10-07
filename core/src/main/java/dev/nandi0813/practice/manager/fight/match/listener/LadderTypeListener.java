@@ -165,21 +165,17 @@ public class LadderTypeListener implements Listener {
                 .replace("%health%", String.valueOf(health)));
     }
 
-    private static boolean isShieldBlockedHit(EntityDamageByEntityEvent e, Player target) {
+    private static boolean isShieldBlockedHit(Player target) {
         ItemStack activeItem = target.getActiveItem();
-        if (!target.isBlocking() || activeItem.getType() != Material.SHIELD) {
-            return false;
-        }
 
-        // A blocked shield hit should not deal HP damage.
-        return e.getFinalDamage() <= 0.0D;
+        return target.isBlocking()
+                && activeItem.getType() == Material.SHIELD;
     }
 
     private static boolean isSkyWarsLiveMatch(Match match) {
         return match.getLadder().getType() == LadderType.SKYWARS
                 && match.getCurrentRound().getRoundStatus() == RoundStatus.LIVE;
     }
-
 
     @EventHandler
     public void onProjectileLaunch(ProjectileLaunchEvent e) {
@@ -757,7 +753,7 @@ public class LadderTypeListener implements Listener {
         // regardless of whether the event was cancelled by a ladder handler.
         match.recordAttack(target, attacker);
 
-        boolean shieldBlocked = isShieldBlockedHit(e, target);
+        boolean shieldBlocked = isShieldBlockedHit(target);
 
         if (!e.isCancelled() && !match.getLadder().getLadderKnockback().getKnockbackType().equals(KnockbackType.DEFAULT)) {
             if (shieldBlocked) {

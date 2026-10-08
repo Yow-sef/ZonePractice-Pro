@@ -74,7 +74,7 @@ public class SaveResource {
         restoreCustomKeys(practice, backup);
 
         File ladderFolder = new File(practice.getDataFolder(), "ladders");
-        if (!ladderFolder.exists()) {
+        if (VersionChecker.isAtLeast(VersionChecker.BukkitVersion.v_26_2_R1) && !ladderFolder.exists()) {
             for (String fileName : LADDER_FILES) {
                 practice.saveResource("ladders/" + fileName, false);
             }

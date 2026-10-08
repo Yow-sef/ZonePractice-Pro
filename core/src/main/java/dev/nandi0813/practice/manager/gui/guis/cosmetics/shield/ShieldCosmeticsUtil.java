@@ -61,16 +61,4 @@ public final class ShieldCosmeticsUtil {
         shield.setItemMeta(bsm);
     }
 
-    /** Removes all banner data from a shield (resets to blank). */
-    public static void clearShield(ItemStack shield) {
-        if (shield == null || shield.getType() != Material.SHIELD) return;
-        var meta = shield.getItemMeta();
-        if (!(meta instanceof BlockStateMeta bsm)) return;
-        BlockState bs = bsm.getBlockState();
-        if (!(bs instanceof Banner banner)) return;
-        banner.setBaseColor(DyeColor.WHITE);
-        banner.setPatterns(new ArrayList<>());
-        bsm.setBlockState(banner);
-        shield.setItemMeta(bsm);
-    }
 }

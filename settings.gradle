@@ -1,0 +1,3 @@
+rootProject.name = 'ZonePractice-Pro'
+
+include 'api', 'core', 'distribution'

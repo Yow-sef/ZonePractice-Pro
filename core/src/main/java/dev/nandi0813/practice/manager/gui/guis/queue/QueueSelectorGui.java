@@ -13,7 +13,6 @@ import dev.nandi0813.practice.manager.ladder.LadderManager;
 import dev.nandi0813.practice.manager.ladder.abstraction.normal.NormalLadder;
 import dev.nandi0813.practice.manager.queue.Queue;
 import dev.nandi0813.practice.manager.queue.QueueManager;
-import dev.nandi0813.practice.util.Common;
 import dev.nandi0813.practice.util.InventoryUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -341,6 +340,8 @@ public abstract class QueueSelectorGui extends GUI {
         }
 
         decoratePage(pageId, inventory);
+
+        fillEmptyConfiguredSlots(inventory, filler, actualSize, currentCategory, allCategories, guiPath);
     }
 
     private void applyLayoutFillers(Inventory inventory, ItemStack filler, int actualSize) {
@@ -363,6 +364,64 @@ public abstract class QueueSelectorGui extends GUI {
                 inventory.setItem(rightSlot - 1, filler);
             }
         }
+    }
+
+    /**
+     * Fills empty slots configured for a specific purpose (ladder, category
+     * selector, or quick match) — e.g. when a ladder was deleted, is invalid,
+     * or has no icon.
+     */
+    private void fillEmptyConfiguredSlots(Inventory inventory, ItemStack fallbackFiller, int actualSize,
+                                          CategoryConfig currentCategory, List<CategoryConfig> allCategories,
+                                          String guiPath) {
+        if (actualSize <= 0) {
+            return;
+        }
+
+        ItemStack filler = GUIFile.getGuiItem(guiPath + ".ICONS.EMPTY-SLOT").get();
+        if (filler == null) {
+            filler = fallbackFiller;
+        }
+        if (filler == null) {
+            return;
+        }
+
+        Set<Integer> configuredSlots = getConfiguredSlots(currentCategory, allCategories, actualSize, getQuickMatchSlot());
+
+        for (int slot : configuredSlots) {
+            ItemStack item = inventory.getItem(slot);
+            if (item == null || item.getType() == Material.AIR) {
+                inventory.setItem(slot, filler);
+            }
+        }
+    }
+
+    private Set<Integer> getConfiguredSlots(CategoryConfig currentCategory, List<CategoryConfig> allCategories,
+                                            int actualSize, int quickMatchSlot) {
+        Set<Integer> configuredSlots = new HashSet<>();
+
+        for (int slot : currentCategory.ladderSlots()) {
+            if (slot >= 0 && slot < actualSize && slot != quickMatchSlot) {
+                configuredSlots.add(slot);
+            }
+        }
+
+        for (CategoryConfig category : allCategories) {
+            if (category.iconDisabled()) {
+                continue;
+            }
+
+            int slot = category.selectorSlot();
+            if (slot >= 0 && slot < actualSize) {
+                configuredSlots.add(slot);
+            }
+        }
+
+        if (quickMatchSlot >= 0 && quickMatchSlot < actualSize) {
+            configuredSlots.add(quickMatchSlot);
+        }
+
+        return configuredSlots;
     }
 
     private void placeQuickMatchItem(Inventory inventory, ItemStack filler, int actualSize, String guiPath) {

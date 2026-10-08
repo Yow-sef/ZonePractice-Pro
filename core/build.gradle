@@ -1,0 +1,41 @@
+repositories {
+    mavenCentral()
+    maven { url = uri('https://repo.papermc.io/repository/maven-public/') }
+    maven { url = uri('https://repo.codemc.io/repository/maven-releases/') }
+    maven { url = uri('https://jitpack.io/') }
+    maven { url = uri('https://mvn.wesjd.net/') }
+    maven { url = uri('https://repo.extendedclip.com/content/repositories/placeholderapi/') }
+    maven { url = uri('https://repo.faststats.dev/releases') }
+    maven { url = uri('https://maven.enginehub.org/repo/') }
+}
+
+dependencies {
+    compileOnly 'com.github.retrooper:packetevents-spigot:2.14.0'
+    annotationProcessor 'org.projectlombok:lombok:1.18.48'
+    compileOnly 'me.clip:placeholderapi:2.12.3'
+    compileOnly 'com.github.NEZNAMY:TAB-API:6.1.2'
+
+    compileOnly 'com.fastasyncworldedit:FastAsyncWorldEdit-Core:2.15.3'
+    compileOnly('com.fastasyncworldedit:FastAsyncWorldEdit-Bukkit:2.15.3') {
+        exclude module: 'FastAsyncWorldEdit-Core'
+    }
+
+    implementation 'dev.dejvokep:boosted-yaml:1.3.7'
+    implementation 'net.wesjd:anvilgui:1.10.13-SNAPSHOT'
+    implementation 'org.bstats:bstats-bukkit:3.2.1'
+    implementation 'dev.faststats.metrics:bukkit:0.30.2'
+    implementation 'com.google.code.gson:gson:2.14.0'
+    implementation 'com.zaxxer:HikariCP:7.1.0'
+    implementation 'org.mariadb.jdbc:mariadb-java-client:3.5.10'
+    implementation 'net.megavex:scoreboard-library-api:2.8.2'
+    runtimeOnly 'net.megavex:scoreboard-library-implementation:2.8.2'
+    implementation project(':api')
+}
+
+tasks.named('processResources') {
+    def pluginVersion = project.version.toString()
+    inputs.property 'version', pluginVersion
+    filesMatching('plugin.yml') {
+        expand version: pluginVersion
+    }
+}

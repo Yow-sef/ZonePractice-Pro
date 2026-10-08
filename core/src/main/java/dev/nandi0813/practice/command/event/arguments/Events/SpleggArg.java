@@ -1,6 +1,5 @@
 package dev.nandi0813.practice.command.event.arguments.Events;
 
-import dev.nandi0813.practice.command.event.arguments.SpawnPointArg;
 import dev.nandi0813.practice.manager.backend.LanguageManager;
 import dev.nandi0813.practice.manager.fight.event.EventManager;
 import dev.nandi0813.practice.manager.fight.event.enums.EventType;

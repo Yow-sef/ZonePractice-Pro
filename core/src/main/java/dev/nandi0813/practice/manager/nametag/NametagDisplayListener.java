@@ -4,10 +4,12 @@ import dev.nandi0813.practice.ZonePractice;
 import io.papermc.paper.event.player.PlayerClientLoadedWorldEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityEvent;
 import org.bukkit.event.entity.EntityPotionEffectEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.*;
@@ -31,9 +33,6 @@ public final class NametagDisplayListener implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onMove(PlayerMoveEvent event) {
-        if (event.getTo() == null) {
-            return;
-        }
 
         if (event.getFrom().getWorld() == event.getTo().getWorld()
                 && event.getFrom().getBlockX() == event.getTo().getBlockX()
@@ -101,12 +100,13 @@ public final class NametagDisplayListener implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onPotionEffect(EntityPotionEffectEvent event) {
-        if (!(event.getEntity() instanceof Player player)) {
+        Entity entity = ((EntityEvent) event).getEntity();
+
+        if (!(entity instanceof Player player)) {
             return;
         }
 
-        PotionEffectType modifiedType = event.getModifiedType();
-        if (modifiedType == null || !modifiedType.equals(PotionEffectType.INVISIBILITY)) {
+        if (event.getModifiedType() != PotionEffectType.INVISIBILITY) {
             return;
         }
 

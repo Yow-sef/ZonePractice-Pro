@@ -1,8 +1,3 @@
 jdk: 25
-# The default JitPack image ships Maven 3.6.1, but maven-compiler-plugin 3.15.0 from the
-# root pom requires 3.6.3 or newer.
-before_install:
-  - sdk install maven 3.9.15
-# Only the parent and the api module are needed to publish ZonePracticePro-Api, so building
-# core/distribution here would make an unrelated failure break the API artifact.
-install: mvn -B -ntp -DskipTests clean install -pl api -am
+# Publish only the API so unrelated core/distribution failures cannot break it.
+install: ./gradlew --no-daemon --console=plain :api:clean :api:build :api:publishToMavenLocal

@@ -49,22 +49,22 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7.0.1
         with:
           persist-credentials: true
           fetch-depth: 0
 
       - name: Set up JDK 25
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v6.0.1
         with:
           java-version: '25'
           distribution: 'temurin'
-          cache: 'maven'
+          cache: 'gradle'
 
-      - name: Set Dynamic Maven Version
+      - name: Set Dynamic Build Version
         id: set_version
         run: |
-          BASE_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          BASE_VERSION=$(sed -n 's/^version=//p' gradle.properties)
           
           if [[ "${{ inputs.is-release-build }}" == "true" ]]; then
             NEW_VERSION="${{ inputs.release-version }}"
@@ -74,25 +74,22 @@ jobs:
             NEW_VERSION="${CLEAN_VERSION}-dev-${{ github.run_number }}-${SHORT_SHA}"
           fi
           
-          mvn versions:set -DnewVersion=$NEW_VERSION -DgenerateBackupPoms=false
-          
           echo "BUILD_VERSION=$NEW_VERSION" >> $GITHUB_ENV
           echo "Build version set to $NEW_VERSION"
 
-      - name: Build with Maven
-        run: mvn -B clean install --file pom.xml
+      - name: Build with Gradle
+        run: ./gradlew --no-daemon --console=plain clean build -Pversion="$BUILD_VERSION"
 
       - name: Rename Jar File
         run: |
-          cd distribution/target
-          JAR_FILE=$(find . -maxdepth 1 -name "*.jar" ! -name "original-*.jar" -print -quit)
-          mv "$JAR_FILE" "ZonePractice-Pro-${{ env.BUILD_VERSION }}.jar"
+          mv "distribution/build/libs/ZonePracticePro-${BUILD_VERSION}.jar" \
+            "distribution/build/libs/ZonePractice-Pro-${BUILD_VERSION}.jar"
 
       - name: Upload Build Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: ZonePractice-Pro-${{ env.BUILD_VERSION }}
-          path: distribution/target/ZonePractice-Pro-${{ env.BUILD_VERSION }}.jar
+          path: distribution/build/libs/ZonePractice-Pro-${{ env.BUILD_VERSION }}.jar
           if-no-files-found: error
 
       - name: Resolve Dev Changelog Args
@@ -122,7 +119,7 @@ jobs:
       - name: Generate Dev Changelog
         if: ${{ !inputs.is-release-build }}
         id: git_cliff_dev
-        uses: orhun/git-cliff-action@v4
+        uses: orhun/git-cliff-action@v4.9.1
         with:
           config: cliff.toml
           args: ${{ steps.changelog_args.outputs.args }}
@@ -132,7 +129,7 @@ jobs:
       - name: Generate Release Changelog
         if: ${{ inputs.is-release-build }}
         id: git_cliff_release
-        uses: orhun/git-cliff-action@v4
+        uses: orhun/git-cliff-action@v4.9.1
         with:
           config: cliff.toml
           args: --unreleased
@@ -164,22 +161,22 @@ jobs:
 
       - name: Create GitHub Release
         if: ${{ inputs.publish-artifacts == true && inputs.is-release-build == true }}
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3.0.3
         with:
           tag_name: ${{ env.BUILD_VERSION }}
           name: ZonePractice Pro ${{ env.BUILD_VERSION }}
           body: ${{ steps.changelog.outputs.notes }}
           prerelease: false
-          files: distribution/target/ZonePractice-Pro-${{ env.BUILD_VERSION }}.jar
+          files: distribution/build/libs/ZonePractice-Pro-${{ env.BUILD_VERSION }}.jar
 
       - name: Publish to Modrinth
         if: ${{ inputs.publish-artifacts == true && env.MODRINTH_ID != '' && env.MODRINTH_TOKEN != '' }}
-        uses: Kir-Antipov/mc-publish@v3.3
+        uses: Kira-NT/mc-publish@v3.3.1
         with:
           modrinth-id: ${{ secrets.MODRINTH_ID }}
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
           modrinth-featured: ${{ inputs.is-release-build }}
-          files: distribution/target/ZonePractice-Pro-${{ env.BUILD_VERSION }}.jar
+          files: distribution/build/libs/ZonePractice-Pro-${{ env.BUILD_VERSION }}.jar
           name: ZonePractice Pro ${{ env.BUILD_VERSION }}
           version: ${{ inputs.is-release-build == true && env.BUILD_VERSION || format('{0}-build.{1}', env.BUILD_VERSION, github.run_number) }}
           version-type: ${{ inputs.release-version-type }}

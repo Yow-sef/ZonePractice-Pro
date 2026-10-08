@@ -82,6 +82,7 @@ public abstract class Match extends BukkitRunnable implements Spectatable, dev.n
     protected final Map<UUID, MatchStatsGui> matchStatsGuis = new HashMap<>();
 
     // Spectator variables
+    @Setter
     private boolean allowSpectators = true;
     protected final List<Player> spectators = new ArrayList<>(); // List of the spectators
 

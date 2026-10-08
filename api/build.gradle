@@ -1,0 +1,25 @@
+plugins {
+    id 'maven-publish'
+}
+
+version = '2.4.0'
+
+repositories {
+    mavenCentral()
+    maven { url = uri('https://repo.papermc.io/repository/maven-public/') }
+}
+
+dependencies {
+    compileOnlyApi 'io.papermc.paper:paper-api:26.2.build.129-stable'
+    compileOnlyApi 'org.projectlombok:lombok:1.18.48'
+    annotationProcessor 'org.projectlombok:lombok:1.18.48'
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId = 'ZonePracticePro-Api'
+            from components.java
+        }
+    }
+}

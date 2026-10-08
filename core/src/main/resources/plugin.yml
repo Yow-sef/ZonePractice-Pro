@@ -1,5 +1,5 @@
 name: ZonePracticePro
-version: '${project.version}'
+version: '${version}'
 main: dev.nandi0813.practice.ZonePractice
 authors: [ Nandi0813 ]
 softdepend: [ PlaceholderAPI, Multiverse-Core, FastAsyncWorldEdit, My_Worlds, TAB ]

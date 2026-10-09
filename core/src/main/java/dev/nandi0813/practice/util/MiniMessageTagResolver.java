@@ -3,6 +3,7 @@ package dev.nandi0813.practice.util;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.Tag;
+import net.kyori.adventure.text.minimessage.tag.resolver.ArgumentQueue;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
 import net.kyori.adventure.text.object.ObjectContents;
@@ -14,12 +15,12 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
-public final class MiniMessageUtil {
+public final class MiniMessageTagResolver {
 
     private static final Pattern HEX_64 = Pattern.compile("^[0-9a-fA-F]{64}$");
     private static final Pattern UUID_PATTERN = Pattern.compile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
 
-    private MiniMessageUtil() {}
+    private MiniMessageTagResolver() {}
 
     /**
      * Builds the global MiniMessage instance configured with standard Adventure tags
@@ -28,7 +29,7 @@ public final class MiniMessageUtil {
     public static MiniMessage createMiniMessage() {
         return MiniMessage.builder()
                 .tags(TagResolver.builder()
-                        .resolver(createHeadTextureResolver())
+                        .resolver(createResolver())
                         .resolver(StandardTags.defaults())
                         .build())
                 .build();
@@ -38,7 +39,7 @@ public final class MiniMessageUtil {
      * Resolves {@code <head_texture:texture[:outer_layer]>} as well as {@code <headtexture:...>}
      * and intercepts {@code <head:...>} when given a base64 or URL skin texture.
      */
-    public static TagResolver createHeadTextureResolver() {
+    public static TagResolver createResolver() {
         TagResolver dedicatedResolver = TagResolver.resolver(
                 Set.of("head_texture", "headtexture"),
                 (args, ctx) -> {
@@ -46,13 +47,7 @@ public final class MiniMessageUtil {
                         throw ctx.newException("Missing texture argument for head_texture tag", args);
                     }
                     String texture = args.pop().value();
-                    boolean hat = true;
-                    if (args.hasNext()) {
-                        Tag.Argument hatArg = args.pop();
-                        if (hatArg.isFalse() || "false".equalsIgnoreCase(hatArg.value())) {
-                            hat = false;
-                        }
-                    }
+                    boolean hat = parseHatArgument(args);
                     return createHeadTag(texture, hat);
                 }
         );
@@ -66,13 +61,7 @@ public final class MiniMessageUtil {
                     String raw = args.peek().value();
                     if (isTextureString(raw)) {
                         args.pop();
-                        boolean hat = true;
-                        if (args.hasNext()) {
-                            Tag.Argument hatArg = args.pop();
-                            if (hatArg.isFalse() || "false".equalsIgnoreCase(hatArg.value())) {
-                                hat = false;
-                            }
-                        }
+                        boolean hat = parseHatArgument(args);
                         return createHeadTag(raw, hat);
                     }
                     return null;
@@ -80,6 +69,14 @@ public final class MiniMessageUtil {
         );
 
         return TagResolver.resolver(dedicatedResolver, fallbackHeadResolver);
+    }
+
+    private static boolean parseHatArgument(ArgumentQueue args) {
+        if (args.hasNext()) {
+            Tag.Argument hatArg = args.pop();
+            return !hatArg.isFalse() && !"false".equalsIgnoreCase(hatArg.value());
+        }
+        return true;
     }
 
     private static Tag createHeadTag(String rawTexture, boolean hat) {

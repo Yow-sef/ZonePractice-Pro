@@ -72,7 +72,7 @@ public final class ZonePractice extends JavaPlugin {
     @Getter
     private static ZonePractice instance;
     @Getter
-    private static MiniMessage miniMessage = MiniMessageUtil.createMiniMessage();
+    private static MiniMessage miniMessage = MiniMessageTagResolver.createMiniMessage();
     @Getter
     private static EntityHider entityHider;
     @Getter
@@ -108,7 +108,7 @@ public final class ZonePractice extends JavaPlugin {
     public void onEnable() {
         instance = this;
 
-        miniMessage = MiniMessageUtil.createMiniMessage();
+        miniMessage = MiniMessageTagResolver.createMiniMessage();
         entityHider = new EntityHider(this, EntityHider.Policy.BLACKLIST);
         arenaCopyUtilListener = new ArenaCopyUtilListener();
 

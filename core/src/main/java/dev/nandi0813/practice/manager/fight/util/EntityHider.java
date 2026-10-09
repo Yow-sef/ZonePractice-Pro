@@ -50,9 +50,7 @@ public class EntityHider implements Listener {
         this.policy = policy;
         this.plugin = plugin;
 
-        PacketEvents.getAPI().getEventManager().registerListener(constructProtocol(), PacketListenerPriority.NORMAL);
-
-        // Register events and packet listener
+        // Register events
         plugin.getServer().getPluginManager().registerEvents(constructBukkit(), plugin);
     }
 
@@ -164,32 +162,6 @@ public class EntityHider implements Listener {
         };
     }
 
-    /**
-     * Construct the packet listener that will be used to intercept every
-     * entity-related packet.
-     *
-     * @return The packet listener.
-     */
-    private PacketListener constructProtocol() {
-        return new PacketListener() {
-            @Override
-            public void onPacketSend(@NonNull PacketSendEvent event) {
-                PacketListener.super.onPacketSend(event);
-
-                @Nullable Player player = event.getPlayer();
-                //noinspection
-                if (player == null) {
-                    return;
-                }
-
-                int entityID = event.getPacketId();
-
-                if (!isVisible(player, entityID)) {
-                    event.setCancelled(true);
-                }
-            }
-        };
-    }
 
     /**
      * Allow the observer to see an entity that was previously hidden.
